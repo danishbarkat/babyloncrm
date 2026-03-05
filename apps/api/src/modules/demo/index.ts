@@ -60,21 +60,30 @@ const inventory = [
   { sku: 'sku-spf50', lot: 'LOT-202', status: 'allocated', qty: 1200 },
 ];
 
-const docsByOrder: Record<string, { name: string; requiredFor: string; link?: string }[]> = {
+type Doc = { name: string; requiredFor: string; link?: string; version: number };
+const docsByOrder: Record<string, Doc[]> = {
   'ff6c4a07-61c3-43c4-960e-ccf31f85f2c4': [
-    { name: 'Order Confirmation', requiredFor: 'confirmed' },
-    { name: 'Packing List', requiredFor: 'packed' },
+    { name: 'Order Confirmation', requiredFor: 'confirmed', version: 1 },
+    { name: 'Packing List', requiredFor: 'packed', version: 1 },
   ],
   '973db48e-48ee-4ae9-9e04-aa8587bc6588': [
-    { name: 'Allocation Summary', requiredFor: 'allocated' },
+    { name: 'Allocation Summary', requiredFor: 'allocated', version: 1 },
   ],
 };
 
-const docsByRequest: Record<string, { name: string; requiredFor: string }[]> = {
+const docsByRequest: Record<string, Doc[]> = {
   'a1136548-8ad8-4bb5-bd00-f1a3680dad61': [
-    { name: 'SDS Sheet', requiredFor: 'submitted' },
+    { name: 'SDS Sheet', requiredFor: 'submitted', version: 1 },
   ],
 };
+
+const serviceAssignments: Record<string, { serviceId: string; status: string }[]> = {};
+
+const inventoryEvents = [
+  { ts: new Date().toISOString(), type: 'production', order_number: 'ORD-2002', detail: 'Batch BATCH-02 in production' },
+  { ts: new Date().toISOString(), type: 'allocation', order_number: 'ORD-2004', detail: 'Lots allocated: LOT-300, LOT-301' },
+  { ts: new Date().toISOString(), type: 'shipping', order_number: 'ORD-2003', detail: 'Shipped via DHL TRK-2003' },
+];
 
 demoRouter.get('/catalog', (_req, res) => res.json({ brands }));
 demoRouter.get('/services', (_req, res) => res.json({ services }));
@@ -86,3 +95,46 @@ demoRouter.get('/documents/order/:id', (req, res) => {
 demoRouter.get('/documents/request/:id', (req, res) => {
   res.json({ documents: docsByRequest[req.params.id] || [] });
 });
+demoRouter.post('/documents/order/:id', (req, res) => {
+  const { name, requiredFor } = req.body;
+  const list = docsByOrder[req.params.id] || [];
+  list.push({ name: name || 'Uploaded Doc', requiredFor: requiredFor || 'any', version: (list[list.length - 1]?.version || 0) + 1 });
+  docsByOrder[req.params.id] = list;
+  res.json({ documents: list });
+});
+demoRouter.post('/documents/request/:id', (req, res) => {
+  const { name, requiredFor } = req.body;
+  const list = docsByRequest[req.params.id] || [];
+  list.push({ name: name || 'Uploaded Doc', requiredFor: requiredFor || 'any', version: (list[list.length - 1]?.version || 0) + 1 });
+  docsByRequest[req.params.id] = list;
+  res.json({ documents: list });
+});
+
+demoRouter.get('/services/assignments/:entityId', (req, res) => {
+  res.json({ assignments: serviceAssignments[req.params.entityId] || [] });
+});
+demoRouter.post('/services/assign', (req, res) => {
+  const { entityId, serviceId } = req.body;
+  if (!entityId || !serviceId) return res.status(400).json({ error: 'entityId and serviceId required' });
+  const list = serviceAssignments[entityId] || [];
+  list.push({ serviceId, status: 'pending_approval' });
+  serviceAssignments[entityId] = list;
+  res.json({ assignments: list });
+});
+demoRouter.post('/services/approve', (req, res) => {
+  const { entityId, serviceId } = req.body;
+  const list = serviceAssignments[entityId] || [];
+  list.forEach((a) => { if (a.serviceId === serviceId) a.status = 'approved'; });
+  res.json({ assignments: list });
+});
+
+const rdStates = ['submitted', 'in_progress', 'awaiting_customer', 'approved', 'resolved'];
+demoRouter.post('/rd/:id/advance', (req, res) => {
+  const item = rdRequests.find((r) => r.id === req.params.id);
+  if (!item) return res.status(404).json({ error: 'Not found' });
+  const idx = rdStates.indexOf(item.state);
+  item.state = rdStates[(idx + 1) % rdStates.length];
+  res.json({ rd: item });
+});
+
+demoRouter.get('/inventory/events', (_req, res) => res.json({ events: inventoryEvents }));

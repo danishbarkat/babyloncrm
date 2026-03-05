@@ -159,3 +159,36 @@ export async function fetchRd() {
 export async function fetchOrderDocuments(orderId: string) {
   return request<{ documents: { name: string; requiredFor: string; link?: string }[] }>(`/demo/documents/order/${orderId}`);
 }
+
+export async function uploadOrderDocument(orderId: string, name: string, requiredFor?: string) {
+  return request<{ documents: { name: string; requiredFor: string; link?: string; version: number }[] }>(`/demo/documents/order/${orderId}`, {
+    method: 'POST',
+    body: { name, requiredFor },
+  });
+}
+
+export async function fetchServiceAssignments(entityId: string) {
+  return request<{ assignments: { serviceId: string; status: string }[] }>(`/demo/services/assignments/${entityId}`);
+}
+
+export async function assignService(entityId: string, serviceId: string) {
+  return request<{ assignments: { serviceId: string; status: string }[] }>(`/demo/services/assign`, {
+    method: 'POST',
+    body: { entityId, serviceId },
+  });
+}
+
+export async function approveService(entityId: string, serviceId: string) {
+  return request<{ assignments: { serviceId: string; status: string }[] }>(`/demo/services/approve`, {
+    method: 'POST',
+    body: { entityId, serviceId },
+  });
+}
+
+export async function advanceRd(id: string) {
+  return request<{ rd: any }>(`/demo/rd/${id}/advance`, { method: 'POST' });
+}
+
+export async function fetchInventoryEvents() {
+  return request<{ events: { ts: string; type: string; order_number: string; detail: string }[] }>(`/demo/inventory/events`);
+}

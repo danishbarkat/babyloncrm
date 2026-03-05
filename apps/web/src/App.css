@@ -116,6 +116,16 @@ body {
   box-shadow: 0 6px 18px rgba(195, 154, 92, 0.18);
 }
 
+.mini-card {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fdfcf9;
+}
+.code { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; }
+.link { color: var(--navy); text-decoration: none; border: none; background: none; cursor: pointer; }
+.link.danger { color: #b00020; font-weight: 700; }
+
 .primary {
   display: inline-flex;
   align-items: center;
@@ -166,6 +176,27 @@ body {
 .pill.bold { background: var(--gold); }
 .pill.small { font-size: 12px; }
 .pill.tiny { font-size: 11px; padding: 4px 8px; }
+
+.tabbar {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+.tab {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--navy);
+}
+.tab.active {
+  background: var(--navy);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(26, 35, 64, 0.12);
+}
 
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
 .card {
@@ -281,6 +312,12 @@ body {
   border: 1px solid var(--border);
   font-size: 14px;
 }
+.composer select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
 .composer button {
   padding: 10px 14px;
   border-radius: 10px;
@@ -295,6 +332,15 @@ body {
   gap: 8px;
   align-items: center;
   margin: 0 0 8px;
+}
+
+.link-btn {
+  border: none;
+  background: transparent;
+  color: var(--navy);
+  cursor: pointer;
+  font-weight: 700;
+  margin-left: 8px;
 }
 
 .error { color: #b00020; font-weight: 700; }
