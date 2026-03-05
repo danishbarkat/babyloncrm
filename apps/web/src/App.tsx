@@ -12,6 +12,10 @@ import {
   postRequestMessage,
   transitionRequest,
   fetchMeta,
+  fetchCatalog,
+  fetchServices,
+  fetchRd,
+  fetchOrderDocuments,
   type RequestItem,
   type ThreadMessage,
   type RfqItem,
@@ -75,6 +79,10 @@ function App() {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [meta, setMeta] = useState<{ orderStates: { state: string; docs: string[]; notes: string }[]; requestStates: string[] } | null>(null);
+  const [catalog, setCatalog] = useState<{ id: string; name: string; skus: any[] }[]>([]);
+  const [services, setServices] = useState<{ id: string; name: string; attachTo: string; chargeable: boolean; status: string }[]>([]);
+  const [rdRequests, setRdRequests] = useState<{ id: string; title: string; state: string; owner: string; customer_visible: boolean }[]>([]);
+  const [orderDocs, setOrderDocs] = useState<{ name: string; requiredFor: string; link?: string }[]>([]);
 
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [thread, setThread] = useState<ThreadMessage[]>([]);
@@ -98,12 +106,18 @@ function App() {
           fetchOrders(auth),
           fetchNotifications(auth),
           fetchMeta(),
+          fetchCatalog(),
+          fetchServices(),
+          fetchRd(),
         ]);
         setRequests(reqs);
         setRfqs(rfqData);
         setOrders(orderData);
         setNotifications(notifData);
         setMeta(metaData);
+        setCatalog(metaData ? (await fetchCatalog()).brands : []);
+        setServices((await fetchServices()).services);
+        setRdRequests((await fetchRd()).rdRequests);
 
         if (reqs.length) {
           const first = reqs[0].id;
@@ -164,6 +178,8 @@ function App() {
       if (!auth) return;
       const detail = await fetchOrderDetail(id, auth);
       setOrderDetail(detail);
+      const docs = await fetchOrderDocuments(id);
+      setOrderDocs(docs.documents);
     } catch (e: any) {
       setErrors((prev) => ({ ...prev, order: e.message }));
     }
@@ -289,6 +305,58 @@ function App() {
           ))}
         </section>
 
+        <section className="grid three">
+          <div className="card">
+            <div className="section-head">
+              <h3>Catalog & SKUs</h3>
+              <span className="muted">Brand · SKU · MOQ</span>
+            </div>
+            <div className="list small">
+              {catalog.map((b) => (
+                <div key={b.id} className="row-line">
+                  <div className="req-title">{b.name}</div>
+                  <div className="mini-list">
+                    {b.skus.map((s: any) => (
+                      <div key={s.id} className="muted tiny">{s.name} — MOQ {s.moq} · rev {s.revisions[0]?.version ?? 'n/a'}</div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card">
+            <div className="section-head">
+              <h3>Services marketplace</h3>
+              <span className="muted">Attach to RFQ/Order</span>
+            </div>
+            <div className="list small">
+              {services.map((s) => (
+                <div key={s.id} className="row-line">
+                  <div className="req-title">{s.name}</div>
+                  <div className="muted tiny">{s.attachTo} · {s.chargeable ? 'Chargeable' : 'Included'} · {s.status}</div>
+                </div>
+              ))}
+              {services.length === 0 && <p className="muted">No services</p>}
+            </div>
+          </div>
+          <div className="card">
+            <div className="section-head">
+              <h3>R&D collaborations</h3>
+              <span className="muted">NPD / Reformulation</span>
+            </div>
+            <div className="list small">
+              {rdRequests.map((r) => (
+                <div key={r.id} className="row-line">
+                  <span className="pill tiny">{r.state}</span>
+                  <div className="req-title">{r.title}</div>
+                  <span className="muted tiny">{r.owner}</span>
+                </div>
+              ))}
+              {rdRequests.length === 0 && <p className="muted">No R&D items</p>}
+            </div>
+          </div>
+        </section>
+
         {meta && (
           <section className="card" style={{ marginTop: 12 }}>
             {/* state reference intentionally hidden per request */}
@@ -412,6 +480,16 @@ function App() {
                     <ul className="mini-list">
                       {(meta.orderStates.find((s) => s.state === orderDetail.order.state)?.docs || ['Not specified']).map((d) => (
                         <li key={d}>{d} — <span className="muted">pending (demo)</span></li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {orderDocs.length > 0 && (
+                  <>
+                    <div className="muted tiny">Available docs:</div>
+                    <ul className="mini-list">
+                      {orderDocs.map((d) => (
+                        <li key={d.name}>{d.name} (for {d.requiredFor})</li>
                       ))}
                     </ul>
                   </>

@@ -143,3 +143,19 @@ export async function fetchMeta() {
     }))
   );
 }
+
+export async function fetchCatalog() {
+  return request<{ brands: { id: string; name: string; skus: { id: string; name: string; moq: number; revisions: { id: string; version: string; status: string; updated_at: string }[] }[] }[] }>('/demo/catalog');
+}
+
+export async function fetchServices() {
+  return request<{ services: { id: string; name: string; attachTo: string; chargeable: boolean; status: string }[] }>('/demo/services');
+}
+
+export async function fetchRd() {
+  return request<{ rdRequests: { id: string; title: string; state: string; owner: string; customer_visible: boolean }[] }>('/demo/rd');
+}
+
+export async function fetchOrderDocuments(orderId: string) {
+  return request<{ documents: { name: string; requiredFor: string; link?: string }[] }>(`/demo/documents/order/${orderId}`);
+}
