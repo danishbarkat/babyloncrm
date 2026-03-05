@@ -10,9 +10,15 @@
                     "packages/workflows/workflow-pack.v1.json"
                 ]
             }
+        },
+        {
+            "src": "apps/web/package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
         }
     ],
-    "outputDirectory": "apps/web/dist",
     "rewrites": [
         {
             "source": "/api/(.*)",
