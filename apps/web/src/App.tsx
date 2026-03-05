@@ -188,15 +188,6 @@ function App() {
   ];
 
   const selectedRequest = selectedRequestId ? requests.find(r => r.id === selectedRequestId) : null;
-  const customerFeatures = [
-    'Submit and track requests, documents, and issues with thread comments',
-    'View RFQs, negotiation status, MOQ/discount outcomes',
-    'Track orders, shipments, ETAs, batch/lot allocations',
-    'Receive notifications for RFQ, order, and request events',
-    'Access service packages attached to RFQs/orders',
-    'Collaborate on new product development & reformulation threads',
-    'Download branding assets and request QR/barcodes',
-  ];
 
   if (!auth) {
     return (
@@ -298,34 +289,9 @@ function App() {
           ))}
         </section>
 
-        <section className="card" style={{ marginTop: 6 }}>
-          <h3>Customers - external capabilities</h3>
-          <ul className="feature-list">
-            {customerFeatures.map((f) => <li key={f}>{f}</li>)}
-          </ul>
-        </section>
-
         {meta && (
           <section className="card" style={{ marginTop: 12 }}>
-            <h3>State reference</h3>
-            <div className="grid two">
-              <div>
-                <h4>Order states</h4>
-                <ul className="feature-list">
-                  {meta.orderStates.map((s) => (
-                    <li key={s.state}>
-                      <strong>{s.state}</strong>: {s.notes} — Docs: {s.docs.join(', ') || 'N/A'}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h4>Request states</h4>
-                <ul className="feature-list">
-                  {meta.requestStates.map((s) => <li key={s}>{s}</li>)}
-                </ul>
-              </div>
-            </div>
+            {/* state reference intentionally hidden per request */}
           </section>
         )}
 
