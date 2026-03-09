@@ -24,12 +24,12 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   });
   if (!res.ok) {
     const text = await res.text();
+    let message = text || res.statusText;
     try {
       const parsed = JSON.parse(text) as { error?: string; message?: string };
-      throw new Error(parsed.error || parsed.message || res.statusText);
-    } catch {
-      throw new Error(text || res.statusText);
-    }
+      message = parsed.error || parsed.message || message;
+    } catch {}
+    throw new Error(message);
   }
   return res.json();
 }
