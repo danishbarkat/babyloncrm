@@ -9,10 +9,15 @@ import { eq, and } from 'drizzle-orm';
 
 export const documentsRouter = Router();
 
-// Ensure uploads directory exists
-const UPLOADS_DIR = path.resolve(process.cwd(), 'uploads');
+const isVercel = process.env.VERCEL === '1';
+const UPLOADS_DIR = isVercel ? '/tmp/uploads' : path.resolve(process.cwd(), 'uploads');
+
 if (!fs.existsSync(UPLOADS_DIR)) {
-    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    try {
+        fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    } catch (err) {
+        console.warn('Failed to create uploads directory:', err);
+    }
 }
 
 const storage = multer.diskStorage({

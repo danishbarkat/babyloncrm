@@ -40,7 +40,9 @@ app.get('/index.html', (_req, res) => {
 });
 
 // Serve uploads statically
-app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
+const isVercel = process.env.VERCEL === '1';
+const uploadsDir = isVercel ? '/tmp/uploads' : path.resolve(process.cwd(), 'uploads');
+app.use('/uploads', express.static(uploadsDir));
 
 // Namespace all API routes under /api so Vercel rewrite + client base path line up.
 const api = express.Router();
