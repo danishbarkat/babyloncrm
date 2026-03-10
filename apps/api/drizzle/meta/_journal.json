@@ -50,6 +50,13 @@
       "when": 1771997066756,
       "tag": "0006_outbox_status",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1773169517560,
+      "tag": "0007_elite_klaw",
+      "breakpoints": true
     }
   ]
 }
