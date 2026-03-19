@@ -8,12 +8,12 @@
                 "includeFiles": [
                     "packages/workflows/workflow-pack.schema.json",
                     "packages/workflows/workflow-pack.v1.json",
-                    "apps/web/dist/**"
+                    "dist/**"
                 ]
             }
         },
         {
-            "src": "apps/web/package.json",
+            "src": "package.json",
             "use": "@vercel/static-build",
             "config": {
                 "distDir": "dist"
@@ -30,18 +30,8 @@
             "destination": "/apps/api/src/main.ts"
         },
         {
-            "source": "/assets/(.*)",
-            "destination": "/apps/web/assets/$1"
-        },
-        {
-            "source": "/((?!api|uploads|assets).+\\.[^/]+)$",
-            "destination": "/apps/web/$1"
-        },
-        {
             "source": "/(.*)",
-            "destination": "/apps/web/index.html"
+            "destination": "/index.html"
         }
-    ],
-    "installCommand": "npm install",
-    "buildCommand": "npm run build"
+    ]
 }

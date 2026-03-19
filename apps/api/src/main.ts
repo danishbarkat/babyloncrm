@@ -33,7 +33,7 @@ app.use(cors({ origin: config.corsOrigin }));
 app.use(express.json());
 
 // Serve built web UI (bundled into the function via includeFiles in vercel.json)
-const webDist = path.resolve(process.cwd(), 'apps/web/dist');
+const webDist = path.resolve(process.cwd(), 'dist');
 app.use(express.static(webDist));
 app.get('/', (_req, res) => {
     res.sendFile(path.join(webDist, 'index.html'));
